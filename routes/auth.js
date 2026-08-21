@@ -42,7 +42,6 @@ router.post('/register', (req, res) => {
     }
   }
 
-  // Buat kode referral unik untuk akun baru ini
   let myRefCode;
   do {
     myRefCode = Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -55,7 +54,6 @@ router.post('/register', (req, res) => {
   db.prepare('INSERT INTO balance_transactions (user_id, amount, note, created_by) VALUES (?, ?, ?, ?)')
     .run(info.lastInsertRowid, 15000, 'Bonus pendaftaran akun baru', null);
 
-  // Kredit bonus flat sekali ke yang ngajak, kalau kode referral valid
   if (referrer) {
     db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(db.REFERRAL_BONUS, referrer.id);
     db.prepare('INSERT INTO balance_transactions (user_id, amount, note, created_by) VALUES (?, ?, ?, ?)')
@@ -91,6 +89,43 @@ router.get('/logout', (req, res) => {
   req.session.destroy(() => {
     res.redirect('/login');
   });
+});
+
+// Setup akun admin pertama (sekali pakai). Diakses lewat browser dengan kunci rahasia
+// dari environment variable ADMIN_SETUP_KEY, supaya tidak sembarang orang bisa bikin admin.
+router.get('/setup-admin', (req, res) => {
+  const { key, name, email, phone, password } = req.query;
+
+  if (!process.env.ADMIN_SETUP_KEY) {
+    return res.status(500).send('ADMIN_SETUP_KEY belum diatur di environment variable server.');
+  }
+  if (!key || key !== process.env.ADMIN_SETUP_KEY) {
+    return res.status(403).send('Kunci rahasia salah atau tidak diisi.');
+  }
+  if (!name || !phone || !password) {
+    return res.status(400).send('Isi dulu name, phone, dan password di URL. Contoh: /setup-admin?key=...&name=Admin&phone=08123&password=rahasia123');
+  }
+
+  const existingAdmin = db.prepare("SELECT id FROM users WHERE role = 'admin'").get();
+  if (existingAdmin) {
+    return res.status(400).send('Akun admin sudah ada sebelumnya. Untuk keamanan, setup ini cuma bisa dipakai sekali.');
+  }
+
+  const existingPhone = db.prepare('SELECT id FROM users WHERE phone = ?').get(phone);
+  if (existingPhone) {
+    return res.status(400).send('Nomor HP itu sudah dipakai akun lain.');
+  }
+
+  let refCode;
+  do {
+    refCode = Math.random().toString(36).slice(2, 8).toUpperCase();
+  } while (db.prepare('SELECT id FROM users WHERE referral_code = ?').get(refCode));
+
+  const hashed = bcrypt.hashSync(password, 10);
+  db.prepare('INSERT INTO users (name, phone, email, password, role, balance, referral_code) VALUES (?, ?, ?, ?, ?, ?, ?)')
+    .run(name, phone, (email || '').trim() || null, hashed, 'admin', 0, refCode);
+
+  res.send('Akun admin berhasil dibuat! Sekarang login lewat halaman /login pakai nomor HP dan password yang barusan kamu isi di URL ini.');
 });
 
 module.exports = router;
