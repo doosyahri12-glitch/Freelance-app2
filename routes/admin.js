@@ -9,6 +9,7 @@ router.use(requireLogin, requireRole('admin'));
 
 // Dashboard utama admin: ringkasan statistik
 router.get('/admin', (req, res) => {
+  try {
   const totalUsers = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
   const totalBalance = db.prepare('SELECT COALESCE(SUM(balance),0) AS s FROM users').get().s;
   const pendingReview = db.prepare("SELECT COUNT(*) AS c FROM tasks WHERE status = 'completed'").get().c;
@@ -63,6 +64,10 @@ router.get('/admin', (req, res) => {
     stats: { totalUsers, totalBalance, pendingReview, pendingWithdrawal, totalTasksApproved, totalWithdrawn },
     chartLabels, chartMasuk, chartKeluar, tugasMenunggu, penarikanMenunggu
   });
+  } catch (err) {
+    console.error('ERROR DI DASHBOARD ADMIN:', err);
+    res.status(500).send('<pre>ERROR DI DASHBOARD ADMIN:\n' + err.stack + '</pre>');
+  }
 });
 
 // Daftar semua akun / profil user (bisa dicari berdasarkan nama)
