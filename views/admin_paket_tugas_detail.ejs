@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= template.name %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/admin-nav', { active: 'paket' }) %>
+  <div class="container">
+    <h2><%= template.name %></h2>
+    <p class="muted"><%= items.length %> tugas di dalam paket ini</p>
+    <% if (message) { %><p class="error"><%= message %></p><% } %>
+
+    <h3 class="section-title">Isi Paket</h3>
+    <% items.forEach(it => { %>
+      <div class="card">
+        <h3><%= it.title %></h3>
+        <span class="badge kategori"><%= it.kategori %></span>
+        <p class="muted" style="margin:6px 0"><%= it.description %></p>
+        <% if (it.harga > 0) { %><p class="muted" style="margin:0">Harga Tugas: Rp <%= it.harga.toLocaleString('id-ID') %></p><% } %>
+        <p style="margin:4px 0 0">Komisi: <strong>Rp <%= it.reward.toLocaleString('id-ID') %></strong></p>
+      </div>
+    <% }) %>
+
+    <h3 class="section-title">Assign ke User</h3>
+    <div class="card">
+      <form method="POST" action="/admin/paket-tugas/<%= template.id %>/assign">
+        <p class="muted">Centang user yang mau dikasih semua tugas di paket ini sekaligus.</p>
+        <% users.forEach(u => { %>
+          <label style="display:flex; align-items:center; gap:8px; font-weight:normal; margin:8px 0">
+            <input type="checkbox" name="user_ids" value="<%= u.id %>" style="width:auto">
+            <%= u.name %> <span class="badge level-<%= u.level.toLowerCase().replace(/\s+/g, '-') %>" style="margin-left:4px"><%= u.level %></span>
+          </label>
+        <% }) %>
+        <button type="submit" style="margin-top:12px"><i class="fa-solid fa-paper-plane"></i> Assign Paket Ini</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

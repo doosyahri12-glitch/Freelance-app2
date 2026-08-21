@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Posting Pekerjaan (Admin)</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav>
+    <span class="brand">FreelanceKu &middot; Admin</span>
+    <div><a href="/admin">Dashboard</a></div>
+  </nav>
+  <div class="container">
+    <div class="card">
+      <h2>Posting Pekerjaan Baru</h2>
+      <% if (error) { %><p class="error"><%= error %></p><% } %>
+      <form method="POST" action="/admin/jobs/new">
+        <label>Judul Pekerjaan</label>
+        <input type="text" name="title" required placeholder="mis. Affiliate Promosi Produk">
+
+        <label>Deskripsi</label>
+        <textarea name="description" required></textarea>
+
+        <label>Budget / Komisi (Rp)</label>
+        <input type="number" name="budget" required min="0">
+
+        <label>Kategori</label>
+        <input type="text" name="category" value="Affiliate">
+
+        <button type="submit">Posting</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

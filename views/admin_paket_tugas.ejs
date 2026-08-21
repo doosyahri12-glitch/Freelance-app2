@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paket Tugas</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/admin-nav', { active: 'paket' }) %>
+  <div class="container">
+    <h2>Paket Tugas</h2>
+    <p class="muted">Bikin satu paket isinya beberapa tugas, lalu assign ke banyak user sekaligus tanpa input satu-satu.</p>
+    <a href="/admin/paket-tugas/new" class="btn"><i class="fa-solid fa-plus"></i> Buat Paket Baru</a>
+
+    <% if (templates.length === 0) { %>
+      <div class="empty-state"><%- include('partials/illustration-empty') %><p>Belum ada paket tugas.</p></div>
+    <% } %>
+
+    <% templates.forEach(t => { %>
+      <div class="card">
+        <h3><a href="/admin/paket-tugas/<%= t.id %>"><%= t.name %></a></h3>
+        <p class="muted" style="margin:0"><%= t.jumlah_item %> tugas di dalam paket ini</p>
+        <p class="muted" style="margin:4px 0 0">Dibuat: <%= t.created_at %></p>
+        <div style="margin-top:10px">
+          <a href="/admin/paket-tugas/<%= t.id %>" class="btn secondary">Lihat & Assign</a>
+          <form method="POST" action="/admin/paket-tugas/<%= t.id %>/delete" style="display:inline"
+                onsubmit="return confirm('Yakin hapus paket &quot;<%= t.name %>&quot;? Tugas yang sudah pernah di-assign dari paket ini tidak akan ikut terhapus.');">
+            <button type="submit" class="danger">Hapus Paket</button>
+          </form>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</body>
+</html>

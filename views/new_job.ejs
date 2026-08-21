@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Posting Pekerjaan</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav>
+    <span class="brand">FreelanceKu</span>
+    <div><a href="/dashboard">Dashboard</a></div>
+  </nav>
+  <div class="container">
+    <div class="card">
+      <h2>Posting Pekerjaan Baru</h2>
+      <% if (error) { %><p class="error"><%= error %></p><% } %>
+      <form method="POST" action="/jobs/new">
+        <label>Judul Pekerjaan</label>
+        <input type="text" name="title" required>
+
+        <label>Deskripsi</label>
+        <textarea name="description" required></textarea>
+
+        <label>Budget (Rp)</label>
+        <input type="number" name="budget" required min="0">
+
+        <label>Kategori (opsional)</label>
+        <input type="text" name="category" placeholder="mis. Desain, Coding, Tulis Artikel">
+
+        <button type="submit">Posting</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<nav class="tabbar" id="liquidTabbar" data-active-index="<%= ['dashboard','tugas','riwayat','akun'].indexOf(active) %>">
+  <span class="liquid-blob" id="liquidBlob"></span>
+  <a href="/dashboard" class="tab-item <%= active === 'dashboard' ? 'active' : '' %>">
+    <span class="tab-icon"><i class="fa-solid fa-house"></i></span>
+    <span class="tab-label">Menu Utama</span>
+  </a>
+  <a href="/tugas" class="tab-item <%= active === 'tugas' ? 'active' : '' %>">
+    <span class="tab-icon"><i class="fa-solid fa-clipboard-list"></i></span>
+    <span class="tab-label">Tugas</span>
+  </a>
+  <a href="/riwayat" class="tab-item <%= active === 'riwayat' ? 'active' : '' %>">
+    <span class="tab-icon"><i class="fa-solid fa-clock-rotate-left"></i></span>
+    <span class="tab-label">Riwayat</span>
+  </a>
+  <a href="/akun" class="tab-item <%= active === 'akun' ? 'active' : '' %>">
+    <span class="tab-icon"><i class="fa-solid fa-user"></i></span>
+    <span class="tab-label">Akun</span>
+  </a>
+</nav>
+<script>
+  (function () {
+    var nav = document.getElementById('liquidTabbar');
+    var blob = document.getElementById('liquidBlob');
+    var targetIndex = parseInt(nav.getAttribute('data-active-index'), 10);
+    if (targetIndex < 0) targetIndex = 0;
+    var prevIndex = sessionStorage.getItem('tabActiveIndex');
+    var startIndex = prevIndex !== null ? parseInt(prevIndex, 10) : targetIndex;
+
+    // Posisikan blob dulu di tempat terakhir (tanpa animasi), baru geser ke tab aktif sekarang
+    blob.style.transition = 'none';
+    blob.style.left = (startIndex * 25 + 12.5) + '%';
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        blob.style.transition = 'left 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        blob.style.left = (targetIndex * 25 + 12.5) + '%';
+      });
+    });
+
+    sessionStorage.setItem('tabActiveIndex', targetIndex);
+  })();
+</script>

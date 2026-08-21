@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buat Paket Tugas</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/admin-nav', { active: 'paket' }) %>
+  <div class="container">
+    <h2>Buat Paket Tugas Baru</h2>
+    <% if (error) { %><p class="error"><%= error %></p><% } %>
+
+    <form method="POST" action="/admin/paket-tugas/new" id="formPaket">
+      <div class="card">
+        <label>Nama Paket</label>
+        <input type="text" name="name" required placeholder="mis. Paket Promosi Toko A">
+      </div>
+
+      <div id="itemsContainer"></div>
+
+      <button type="button" class="btn secondary" onclick="tambahItem()"><i class="fa-solid fa-plus"></i> Tambah Tugas</button>
+      <button type="submit"><i class="fa-solid fa-floppy-disk"></i> Simpan Paket</button>
+    </form>
+  </div>
+
+  <script>
+    let itemIndex = 0;
+
+    function tambahItem() {
+      const container = document.getElementById('itemsContainer');
+      const idx = itemIndex++;
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.id = 'item-' + idx;
+      div.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <h3 style="margin:0">Tugas #${idx + 1}</h3>
+          <button type="button" class="btn danger" style="margin:0; padding:6px 12px" onclick="hapusItem(${idx})">Hapus</button>
+        </div>
+        <label>Judul Tugas</label>
+        <input type="text" name="items[${idx}][title]" required>
+
+        <label>Deskripsi / Instruksi</label>
+        <textarea name="items[${idx}][description]" required></textarea>
+
+        <label>Kategori</label>
+        <select name="items[${idx}][kategori]">
+          <option value="Media Sosial">Media Sosial</option>
+          <option value="Review Produk">Review Produk</option>
+          <option value="Survei">Survei</option>
+          <option value="Affiliate">Affiliate</option>
+          <option value="Lainnya" selected>Lainnya</option>
+        </select>
+
+        <label>Harga Tugas (Rp, opsional)</label>
+        <input type="number" name="items[${idx}][harga]" min="0" value="0">
+
+        <label>Komisi Tugas (Rp)</label>
+        <input type="number" name="items[${idx}][reward]" min="0" required>
+      `;
+      container.appendChild(div);
+    }
+
+    function hapusItem(idx) {
+      const el = document.getElementById('item-' + idx);
+      if (el) el.remove();
+    }
+
+    // Mulai dengan 1 tugas biar tidak kosong
+    tambahItem();
+  </script>
+</body>
+</html>

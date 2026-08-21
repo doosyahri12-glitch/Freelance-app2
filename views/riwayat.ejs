@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riwayat</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <nav>
+    <span class="brand"><span class="logo-mark"><i class="fa-solid fa-briefcase"></i></span>FreelanceKu</span>
+    <div>
+      <%- include('partials/theme-toggle') %>
+      <%- include('partials/bell') %>
+      <a href="/logout">Logout</a>
+    </div>
+  </nav>
+  <div class="container with-tabbar">
+    <h2>Riwayat Saldo</h2>
+
+    <% if (grafikKomisi.some(v => v > 0)) { %>
+      <div class="card">
+        <p style="margin:0 0 12px; font-weight:600">Komisi 7 Hari Terakhir</p>
+        <div class="mini-chart">
+          <% const maxKomisi = Math.max(1, ...grafikKomisi); %>
+          <% grafikLabel.forEach((label, i) => { %>
+            <div class="mini-chart-col">
+              <div class="mini-chart-bars">
+                <div class="mini-chart-bar" style="height:<%= Math.round((grafikKomisi[i] / maxKomisi) * 100) %>%; background:var(--primary); width:14px" title="Rp<%= grafikKomisi[i].toLocaleString('id-ID') %>"></div>
+              </div>
+              <p class="mini-chart-label"><%= label %></p>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <form method="GET" action="/riwayat" style="margin-bottom:16px">
+      <label>Dari Tanggal</label>
+      <input type="date" name="start_date" value="<%= startDate %>">
+      <label>Sampai Tanggal</label>
+      <input type="date" name="end_date" value="<%= endDate %>">
+      <button type="submit">Filter</button>
+      <% if (startDate || endDate) { %>
+        <a href="/riwayat" class="btn secondary" style="margin-top:8px; display:inline-block">Reset</a>
+      <% } %>
+    </form>
+
+    <% if (transactions.length === 0) { %>
+      <div class="empty-state"><%- include('partials/illustration-empty') %><p>Tidak ada riwayat transaksi di rentang ini.</p></div>
+    <% } %>
+    <% transactions.forEach(t => { %>
+      <div class="card">
+        <p style="margin:0"><strong><%= t.amount > 0 ? '+' : '' %>Rp <%= t.amount.toLocaleString('id-ID') %></strong></p>
+        <% if (t.note) { %><p class="muted" style="margin:2px 0"><%= t.note %></p><% } %>
+        <p class="muted" style="margin:0"><%= t.created_at %></p>
+      </div>
+    <% }) %>
+  </div>
+  <%- include('partials/tabbar', { active: 'riwayat' }) %>
+</body>
+</html>

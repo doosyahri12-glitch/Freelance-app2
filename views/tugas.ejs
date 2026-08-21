@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tugas</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <nav>
+    <span class="brand"><span class="logo-mark"><i class="fa-solid fa-briefcase"></i></span>FreelanceKu</span>
+    <div>
+      <%- include('partials/theme-toggle') %>
+      <%- include('partials/bell') %>
+      <a href="/logout">Logout</a>
+    </div>
+  </nav>
+  <div class="container with-tabbar">
+    <h2>Tugas dari Admin</h2>
+
+    <!-- Kartu ringkasan: level, komisi, dan progres tugas (data asli) -->
+    <div class="task-summary-card">
+      <div class="task-summary-top">
+        <span class="badge level-<%= level.toLowerCase().replace(/\s+/g, '-') %>"><i class="fa-solid fa-star"></i> <%= level %></span>
+        <span class="task-summary-komisi">Komisi Rp <%= totalKomisi.toLocaleString('id-ID') %></span>
+      </div>
+      <div class="task-summary-stats">
+        <div>
+          <p class="task-summary-num"><%= selesai %></p>
+          <p class="task-summary-label">Selesai</p>
+        </div>
+        <div>
+          <p class="task-summary-num"><%= totalTugas - selesai %></p>
+          <p class="task-summary-label">Sisa Tugas</p>
+        </div>
+        <div>
+          <p class="task-summary-num"><%= selesai %>/<%= totalTugas %></p>
+          <p class="task-summary-label">Jumlah Tugas</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="task-summary-detail-card">
+      <div>
+        <p class="task-detail-num">Rp <%= totalKomisi.toLocaleString('id-ID') %></p>
+        <p class="muted" style="margin:0">Total Komisi</p>
+      </div>
+      <div>
+        <p class="task-detail-num"><%= totalTugas %></p>
+        <p class="muted" style="margin:0">Jumlah Tugas</p>
+      </div>
+      <div>
+        <p class="task-detail-num"><%= selesai %></p>
+        <p class="muted" style="margin:0">Tugas Selesai</p>
+      </div>
+      <div>
+        <p class="task-detail-num">Rp <%= balance.toLocaleString('id-ID') %></p>
+        <p class="muted" style="margin:0">Saldo Saat Ini</p>
+      </div>
+    </div>
+
+    <% if (tasks.length > 0) { %>
+      <button type="button" class="btn task-cta" onclick="bukaModalTugas()">Mulai Kerjakan</button>
+    <% } %>
+
+    <% if (tasks.length === 0) { %>
+      <div class="empty-state"><%- include('partials/illustration-empty') %><p>Belum ada tugas yang diberikan untuk kamu.</p></div>
+    <% } %>
+  </div>
+
+  <!-- Modal pop-up: tampilkan tugas satu per satu -->
+  <div id="modalOverlay" class="task-modal-overlay" style="display:none">
+    <div class="task-modal-box">
+      <div class="task-modal-header">
+        <span id="modalCounter" class="muted"></span>
+        <button type="button" class="task-modal-close" onclick="tutupModalTugas()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="modalBody"></div>
+      <div class="task-modal-footer">
+        <button type="button" class="btn secondary" id="btnSebelumnya" onclick="gantiTugas(-1)">Sebelumnya</button>
+        <button type="button" class="btn" id="btnBerikutnya" onclick="gantiTugas(1)">Berikutnya</button>
+      </div>
+    </div>
+  </div>
+
+  <%- include('partials/tabbar', { active: 'tugas' }) %>
+  <script>
+    const semuaTugas = <%- JSON.stringify(tasks).replace(/</g, '\\u003c') %>;
+    let indexTugas = 0;
+
+    function formatRupiah(angka) {
+      return 'Rp ' + Number(angka).toLocaleString('id-ID');
+    }
+
+    function badgeStatus(t) {
+      if (t.status === 'pending') return '<span class="badge pending">Belum Dikerjakan</span>';
+      if (t.status === 'completed') return '<span class="badge pending">Menunggu Review Admin</span>';
+      if (t.status === 'approved') return '<span class="badge accepted">Disetujui, Saldo Cair</span>';
+      return '<span class="badge rejected">Ditolak</span>';
+    }
+
+    function renderTugas(i) {
+      const t = semuaTugas[i];
+      document.getElementById('modalCounter').innerText = 'Tugas ' + (i + 1) + ' dari ' + semuaTugas.length;
+
+      let html = '<h3>' + t.title + '</h3>';
+      html += '<span class="badge kategori">' + t.kategori + '</span>';
+      html += '<p>' + t.description + '</p>';
+      if (t.harga > 0) html += '<p class="muted" style="margin:0">Harga Tugas: ' + formatRupiah(t.harga) + '</p>';
+      html += '<p>Komisi: <strong>' + formatRupiah(t.reward) + '</strong></p>';
+      html += badgeStatus(t);
+      if (t.status === 'pending') {
+        if (t.harga > 0) {
+          html += '<p class="muted" style="margin-top:8px"><i class="fa-solid fa-circle-info"></i> Tugas ini perlu direview admin dulu sebelum komisi cair.</p>';
+        } else {
+          html += '<p class="muted" style="margin-top:8px"><i class="fa-solid fa-bolt"></i> Komisi langsung cair otomatis begitu ditandai selesai.</p>';
+        }
+        html += '<form method="POST" action="/tasks/' + t.id + '/complete" style="margin-top:10px">' +
+                '<button type="submit">Tandai Selesai</button></form>';
+      }
+      document.getElementById('modalBody').innerHTML = html;
+
+      document.getElementById('btnSebelumnya').style.visibility = i === 0 ? 'hidden' : 'visible';
+      document.getElementById('btnBerikutnya').style.visibility = i === semuaTugas.length - 1 ? 'hidden' : 'visible';
+    }
+
+    function gantiTugas(arah) {
+      indexTugas = Math.max(0, Math.min(semuaTugas.length - 1, indexTugas + arah));
+      renderTugas(indexTugas);
+    }
+
+    function bukaModalTugas() {
+      indexTugas = 0;
+      renderTugas(indexTugas);
+      document.getElementById('modalOverlay').style.display = 'flex';
+    }
+
+    function tutupModalTugas() {
+      document.getElementById('modalOverlay').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

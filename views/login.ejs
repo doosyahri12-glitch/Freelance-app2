@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <nav>
+    <span class="brand"><span class="logo-mark"><i class="fa-solid fa-briefcase"></i></span>FreelanceKu</span>
+    <div>
+      <%- include('partials/theme-toggle') %>
+      <a href="/register">Daftar</a>
+    </div>
+  </nav>
+  <div class="container">
+    <div class="card">
+      <%- include('partials/illustration-work') %>
+      <h2>Login</h2>
+      <% if (error) { %><p class="error"><%= error %></p><% } %>
+      <form method="POST" action="/login">
+        <label>Nomor HP atau Email</label>
+        <input type="text" name="identifier" required>
+
+        <label>Password</label>
+        <input type="password" name="password" required>
+
+        <button type="submit">Login</button>
+      </form>
+      <p class="muted">Belum punya akun? <a href="/register">Daftar di sini</a></p>
+    </div>
+  </div>
+</body>
+</html>

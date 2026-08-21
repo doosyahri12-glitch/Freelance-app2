@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tentang Aplikasi</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <nav>
+    <span class="brand"><span class="logo-mark"><i class="fa-solid fa-briefcase"></i></span>FreelanceKu</span>
+    <div>
+      <%- include('partials/theme-toggle') %>
+      <% if (user) { %>
+        <a href="/akun">Kembali</a>
+      <% } else { %>
+        <a href="/login">Login</a>
+      <% } %>
+    </div>
+  </nav>
+  <div class="container <%= user ? 'with-tabbar' : '' %>">
+    <h2>Tentang FreelanceKu</h2>
+
+    <div class="card">
+      <p>FreelanceKu adalah platform tempat admin memberikan tugas kepada user, dan user mendapatkan komisi setelah tugasnya dikerjakan dan disetujui.</p>
+    </div>
+
+    <h3 class="section-title">Cara Kerja</h3>
+    <div class="card">
+      <p style="margin:0 0 8px"><i class="fa-solid fa-clipboard-list"></i> <strong>1. Terima Tugas</strong></p>
+      <p class="muted" style="margin:0 0 14px">Admin memberikan tugas langsung ke akun kamu, lengkap dengan komisinya.</p>
+
+      <p style="margin:0 0 8px"><i class="fa-solid fa-check"></i> <strong>2. Kerjakan & Tandai Selesai</strong></p>
+      <p class="muted" style="margin:0 0 14px">Setelah tugas selesai dikerjakan, tandai selesai di menu Tugas.</p>
+
+      <p style="margin:0 0 8px"><i class="fa-solid fa-money-bill-transfer"></i> <strong>3. Komisi Cair</strong></p>
+      <p class="muted" style="margin:0">Admin akan meninjau, dan kalau disetujui, komisi otomatis masuk ke saldo kamu. Saldo bisa ditarik ke rekening bank kapan saja (minimal Rp50.000).</p>
+    </div>
+  </div>
+  <% if (user) { %>
+    <%- include('partials/tabbar', { active: 'akun' }) %>
+  <% } %>
+</body>
+</html>

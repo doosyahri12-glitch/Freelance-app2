@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bantuan</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <nav>
+    <span class="brand"><span class="logo-mark"><i class="fa-solid fa-briefcase"></i></span>FreelanceKu</span>
+    <div>
+      <%- include('partials/theme-toggle') %>
+      <%- include('partials/bell') %>
+      <a href="/akun">Kembali</a>
+    </div>
+  </nav>
+  <div class="container with-tabbar">
+    <h2>Bantuan</h2>
+    <%- include('partials/illustration-support') %>
+
+    <% if (adminPhone) { %>
+      <div class="card" style="text-align:center">
+        <p style="margin:0 0 10px">Ada pertanyaan atau kendala? Hubungi admin langsung.</p>
+        <a href="https://wa.me/<%= adminPhone.replace(/^0/, '62').replace(/\D/g, '') %>" class="btn" target="_blank" rel="noopener">
+          <i class="fa-brands fa-whatsapp"></i> Chat Admin via WhatsApp
+        </a>
+      </div>
+    <% } %>
+
+    <h3 class="section-title">Pertanyaan Umum</h3>
+
+    <div class="card">
+      <p style="margin:0 0 6px"><strong>Bagaimana cara mendapat tugas?</strong></p>
+      <p class="muted" style="margin:0">Admin akan memberikan tugas langsung ke akun kamu. Cek menu Tugas secara berkala.</p>
+    </div>
+
+    <div class="card">
+      <p style="margin:0 0 6px"><strong>Kapan saldo tugas cair?</strong></p>
+      <p class="muted" style="margin:0">Setelah kamu tandai tugas selesai, admin akan mereview. Kalau disetujui, saldo otomatis masuk ke akun kamu.</p>
+    </div>
+
+    <div class="card">
+      <p style="margin:0 0 6px"><strong>Bagaimana cara menarik saldo?</strong></p>
+      <p class="muted" style="margin:0">Isi rekening bank kamu di menu Akun, lalu ajukan penarikan. Admin akan memproses transfer secara manual.</p>
+    </div>
+
+    <div class="card">
+      <p style="margin:0 0 6px"><strong>Berapa lama proses penarikan?</strong></p>
+      <p class="muted" style="margin:0">Tergantung admin memproses permintaanmu. Kamu bisa cek statusnya di menu Akun atau Riwayat.</p>
+    </div>
+
+    <div class="card">
+      <p style="margin:0 0 6px"><strong>Lupa kata sandi?</strong></p>
+      <p class="muted" style="margin:0">Hubungi admin lewat WhatsApp di atas untuk minta reset kata sandi.</p>
+    </div>
+  </div>
+  <%- include('partials/tabbar', { active: 'akun' }) %>
+</body>
+</html>

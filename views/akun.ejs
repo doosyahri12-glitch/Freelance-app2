@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Akun</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <nav>
+    <span class="brand"><span class="logo-mark"><i class="fa-solid fa-briefcase"></i></span>FreelanceKu</span>
+    <div>
+      <%- include('partials/theme-toggle') %>
+      <%- include('partials/bell') %>
+    </div>
+  </nav>
+  <div class="container with-tabbar">
+
+    <!-- Profil & Nama Akun -->
+    <div class="account-header">
+      <% if (fotoUrl) { %>
+        <img src="<%= fotoUrl %>" alt="Foto profil" class="profile-photo-preview" style="width:70px;height:70px" onerror="this.style.display='none'; document.getElementById('avatarFallback').style.display='flex';">
+        <div id="avatarFallback" class="avatar" style="display:none"><%= user.name.charAt(0).toUpperCase() %></div>
+      <% } else { %>
+        <div class="avatar"><%= user.name.charAt(0).toUpperCase() %></div>
+      <% } %>
+      <h2 style="margin:0"><%= user.name %></h2>
+      <p class="muted" style="margin:2px 0"><%= user.email %></p>
+      <% if (bio) { %><p style="margin:4px 0; font-size:13px; max-width:280px"><%= bio %></p><% } %>
+      <span class="badge freelancer">Freelancer</span>
+      <span class="badge level-<%= level.toLowerCase().replace(/\s+/g, '-') %>"><i class="fa-solid fa-star"></i> <%= level %></span>
+      <a href="/akun/edit" class="btn secondary" style="margin-top:10px">Edit Profil</a>
+    </div>
+
+    <!-- Saldo -->
+    <div class="balance-card">
+      <p class="label">Saldo Kamu</p>
+      <p class="amount">Rp <%= balance.toLocaleString('id-ID') %></p>
+      <% if (pendingWithdrawal > 0) { %>
+        <p class="muted" style="margin-top:4px">Rp <%= pendingWithdrawal.toLocaleString('id-ID') %> sedang diproses penarikan</p>
+      <% } %>
+    </div>
+
+    <!-- Tarik Saldo -->
+    <div class="card">
+      <h3><i class="fa-solid fa-money-bill-transfer"></i> Tarik Saldo</h3>
+      <% if (error) { %>
+        <p class="error"><%= error %></p>
+      <% } %>
+      <% if (!bank.bank_account_number) { %>
+        <p class="muted">Isi rekening bank kamu dulu di bawah sebelum bisa menarik saldo.</p>
+      <% } else if (belumSelesaiCount > 0) { %>
+        <p class="muted">Penarikan tidak dapat dilakukan karena terdapat tugas yang belum selesai.</p>
+        <a href="/tugas" class="btn secondary" style="margin-top:8px">Lihat Tugas</a>
+      <% } else if ((balance - pendingWithdrawal) < 50000) { %>
+        <p class="muted">Saldo tersedia untuk ditarik: <strong>Rp <%= (balance - pendingWithdrawal).toLocaleString('id-ID') %></strong></p>
+        <p class="muted" style="margin-top:2px">Minimal penarikan Rp50.000. Kumpulkan saldo lebih dulu ya.</p>
+      <% } else { %>
+        <p class="muted">Saldo tersedia untuk ditarik: <strong>Rp <%= (balance - pendingWithdrawal).toLocaleString('id-ID') %></strong></p>
+        <p class="muted" style="margin-top:2px">Minimal penarikan Rp50.000.</p>
+        <form method="POST" action="/penarikan">
+          <label>Jumlah Penarikan</label>
+          <input type="number" name="amount" min="50000" max="<%= balance - pendingWithdrawal %>" required placeholder="mis. 50000">
+          <button type="submit">Ajukan Penarikan</button>
+        </form>
+      <% } %>
+
+      <% if (withdrawals.length > 0) { %>
+        <p class="muted" style="margin-top:14px; font-weight:600">Riwayat Penarikan Terbaru</p>
+        <% withdrawals.forEach(w => { %>
+          <div style="padding:6px 0; border-bottom:1px solid #f0f0f0">
+            <div style="display:flex; justify-content:space-between">
+              <span>Rp <%= w.amount.toLocaleString('id-ID') %></span>
+              <% if (w.status === 'pending') { %>
+                <span class="badge pending">Diproses</span>
+              <% } else if (w.status === 'completed') { %>
+                <span class="badge accepted">Selesai</span>
+              <% } else { %>
+                <span class="badge rejected">Ditolak</span>
+              <% } %>
+            </div>
+            <% if (w.catatan) { %>
+              <p class="muted" style="margin:4px 0 0; font-size:12px">Ket: <%= w.catatan %></p>
+            <% } %>
+          </div>
+        <% }) %>
+      <% } %>
+    </div>
+
+    <!-- Kaitkan Akun / Penarikan Bank -->
+    <div class="card">
+      <h3><i class="fa-solid fa-building-columns"></i> Kaitkan Akun &middot; Rekening Bank</h3>
+      <% if (bank.bank_account_number) { %>
+        <p class="muted">Rekening tersimpan. Admin akan transfer ke rekening ini saat proses penarikan saldo.</p>
+      <% } else { %>
+        <p class="muted">Kaitkan rekening bank kamu supaya saldo bisa dicairkan oleh admin.</p>
+      <% } %>
+      <form method="POST" action="/account/bank">
+        <label>Nama Bank</label>
+        <input type="text" name="bank_name" value="<%= bank.bank_name || '' %>" placeholder="mis. BCA, BRI, Mandiri">
+
+        <label>Nomor Rekening</label>
+        <input type="text" name="bank_account_number" value="<%= bank.bank_account_number || '' %>" placeholder="mis. 1234567890">
+
+        <label>Nama Pemilik Rekening</label>
+        <input type="text" name="bank_account_holder" value="<%= bank.bank_account_holder || '' %>" placeholder="Sesuai buku tabungan">
+
+        <button type="submit">Simpan Rekening</button>
+      </form>
+    </div>
+
+    <!-- Lencana Pencapaian -->
+    <div class="card">
+      <h3><i class="fa-solid fa-award"></i> Lencana Pencapaian</h3>
+      <div class="badge-grid">
+        <% badges.forEach(b => { %>
+          <div class="badge-item <%= b.unlocked ? 'unlocked' : 'locked' %>">
+            <i class="fa-solid <%= b.icon %>"></i>
+            <span><%= b.label %></span>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- Ajak Teman -->
+    <div class="card">
+      <h3><i class="fa-solid fa-user-plus"></i> Ajak Teman</h3>
+      <p class="muted">Bagikan kode kamu. Setiap teman yang daftar pakai kode ini, kamu dapat bonus.</p>
+      <div class="ref-code-box">
+        <span id="refCodeText"><%= referralCode %></span>
+        <button type="button" class="btn secondary" onclick="salinKodeReferral()">Salin</button>
+      </div>
+      <p class="muted" style="margin-top:10px">Sudah <strong><%= referredCount %></strong> teman bergabung pakai kode kamu.</p>
+    </div>
+
+    <!-- Menu lainnya -->
+    <div class="card" style="padding:0">
+      <a href="/riwayat" class="account-menu-item">
+        <div class="label"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat</div>
+        <div class="desc">Riwayat saldo kamu</div>
+      </a>
+      <a href="/papan-peringkat" class="account-menu-item">
+        <div class="label"><i class="fa-solid fa-ranking-star"></i> Papan Peringkat</div>
+        <div class="desc">User paling produktif</div>
+      </a>
+      <a href="/bantuan" class="account-menu-item">
+        <div class="label"><i class="fa-solid fa-circle-question"></i> Bantuan</div>
+        <div class="desc">FAQ dan kontak admin</div>
+      </a>
+      <a href="/syarat-ketentuan" class="account-menu-item">
+        <div class="label"><i class="fa-solid fa-file-lines"></i> Syarat & Ketentuan</div>
+        <div class="desc">Ketentuan penggunaan akun</div>
+      </a>
+      <a href="/tentang" class="account-menu-item">
+        <div class="label"><i class="fa-solid fa-circle-info"></i> Tentang Aplikasi</div>
+        <div class="desc">Cara kerja FreelanceKu</div>
+      </a>
+      <a href="/logout" class="account-menu-item danger-text">
+        <div class="label"><i class="fa-solid fa-right-from-bracket"></i> Logout</div>
+        <div class="desc">Keluar dari akun ini</div>
+      </a>
+    </div>
+
+  </div>
+  <%- include('partials/tabbar', { active: 'akun' }) %>
+  <script>
+    function salinKodeReferral() {
+      const text = document.getElementById('refCodeText').innerText;
+      navigator.clipboard.writeText(text).then(() => alert('Kode referral disalin: ' + text));
+    }
+  </script>
+</body>
+</html>

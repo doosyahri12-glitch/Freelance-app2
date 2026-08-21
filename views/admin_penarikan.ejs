@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola Penarikan</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/admin-nav', { active: 'penarikan' }) %>
+  <div class="container">
+    <h2>Permintaan Penarikan Saldo</h2>
+    <a href="/admin/export/penarikan" class="btn secondary"><i class="fa-solid fa-file-excel"></i> Export ke Excel</a>
+
+    <form method="GET" action="/admin/penarikan" style="margin:16px 0">
+      <input type="text" name="search" value="<%= search %>" placeholder="Cari nama user...">
+      <select name="status">
+        <option value="" <%= statusFilter === '' ? 'selected' : '' %>>Semua Status</option>
+        <option value="pending" <%= statusFilter === 'pending' ? 'selected' : '' %>>Diproses</option>
+        <option value="completed" <%= statusFilter === 'completed' ? 'selected' : '' %>>Selesai</option>
+        <option value="rejected" <%= statusFilter === 'rejected' ? 'selected' : '' %>>Ditolak</option>
+      </select>
+      <button type="submit">Filter</button>
+      <% if (search || statusFilter) { %>
+        <a href="/admin/penarikan" class="btn secondary" style="margin-top:8px; display:inline-block">Reset</a>
+      <% } %>
+    </form>
+
+    <% if (withdrawals.length === 0) { %>
+      <div class="empty-state"><%- include('partials/illustration-empty') %><p>Tidak ada permintaan yang cocok.</p></div>
+    <% } %>
+
+    <% withdrawals.forEach(w => { %>
+      <div class="card">
+        <div class="user-row">
+          <div class="info">
+            <h3><%= w.user_name %></h3>
+            <% if (w.user_phone) { %><p class="muted" style="margin:0"><i class="fa-solid fa-mobile-screen"></i> <%= w.user_phone %></p><% } %>
+            <p class="balance-amount">Rp <%= w.amount.toLocaleString('id-ID') %></p>
+          </div>
+          <% if (w.status === 'pending') { %>
+            <span class="badge pending">Diproses</span>
+          <% } else if (w.status === 'completed') { %>
+            <span class="badge accepted">Selesai</span>
+          <% } else { %>
+            <span class="badge rejected">Ditolak</span>
+          <% } %>
+        </div>
+
+        <p class="muted" style="margin-top:8px">
+          <i class="fa-solid fa-building-columns"></i> <%= w.bank_name %> &middot; <%= w.bank_account_number %> a.n. <%= w.bank_account_holder %>
+        </p>
+        <p class="muted" style="margin:0">Diajukan: <%= w.created_at %></p>
+
+        <% if (w.status !== 'pending' && w.catatan) { %>
+          <div class="admin-note-box">
+            <p class="muted" style="margin:0 0 2px; font-weight:600">Keterangan Admin:</p>
+            <p style="margin:0"><%= w.catatan %></p>
+          </div>
+        <% } %>
+
+        <% if (w.status === 'pending') { %>
+          <div style="margin-top:10px">
+            <form method="POST" action="/admin/penarikan/<%= w.id %>/selesai"
+                  onsubmit="return confirm('Konfirmasi kamu SUDAH transfer Rp <%= w.amount.toLocaleString('id-ID') %> ke rekening ini? Saldo user akan otomatis dipotong.');">
+              <label>Keterangan (opsional)</label>
+              <textarea name="catatan" placeholder="mis. Sudah ditransfer via BCA, cek rekening"></textarea>
+              <button type="submit">Sudah Ditransfer</button>
+            </form>
+            <form method="POST" action="/admin/penarikan/<%= w.id %>/tolak" style="margin-top:10px">
+              <label>Alasan Ditolak (opsional)</label>
+              <textarea name="catatan" placeholder="mis. Data rekening tidak sesuai nama akun"></textarea>
+              <button type="submit" class="danger">Tolak</button>
+            </form>
+          </div>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+</body>
+</html>

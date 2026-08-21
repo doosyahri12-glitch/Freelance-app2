@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beri Tugas Baru</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/admin-nav', { active: 'tasks' }) %>
+  <div class="container">
+    <div class="card">
+      <h2>Beri Tugas Baru ke User</h2>
+      <% if (error) { %><p class="error"><%= error %></p><% } %>
+      <form method="POST" action="/admin/tasks/new">
+        <label>Pilih User</label>
+        <select name="assigned_to" required>
+          <option value="">-- Pilih User --</option>
+          <% users.forEach(u => { %>
+            <option value="<%= u.id %>" <%= preselectId === u.id ? 'selected' : '' %>>
+              <%= u.name %> (<%= u.email %>) &middot; <%= u.level %>
+            </option>
+          <% }) %>
+        </select>
+
+        <label>Judul Tugas</label>
+        <input type="text" name="title" required placeholder="mis. Share link affiliate di 3 grup WA">
+
+        <label>Deskripsi / Instruksi</label>
+        <textarea name="description" required placeholder="Jelaskan detail tugas dan cara verifikasinya"></textarea>
+
+        <label>Kategori Tugas</label>
+        <select name="kategori">
+          <option value="Media Sosial">Media Sosial</option>
+          <option value="Review Produk">Review Produk</option>
+          <option value="Survei">Survei</option>
+          <option value="Affiliate">Affiliate</option>
+          <option value="Lainnya" selected>Lainnya</option>
+        </select>
+
+        <label>Harga Tugas (Rp)</label>
+        <input type="number" name="harga" min="0" placeholder="mis. harga produk yang dipromosikan (opsional)">
+
+        <label>Komisi Tugas (Rp)</label>
+        <input type="number" name="reward" required min="0" placeholder="Saldo yang akan cair setelah disetujui">
+
+        <button type="submit">Beri Tugas</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

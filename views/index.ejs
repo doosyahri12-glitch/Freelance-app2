@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cari Kerja Freelance</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav>
+    <span class="brand">FreelanceKu</span>
+    <div>
+      <% if (user) { %>
+        <a href="/dashboard"><%= user.role === 'admin' ? 'Admin' : 'Dashboard' %></a>
+        <a href="/logout">Logout</a>
+      <% } else { %>
+        <a href="/login">Login</a>
+        <a href="/register">Daftar</a>
+      <% } %>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h2>Daftar Pekerjaan Terbuka</h2>
+    <% if (jobs.length === 0) { %>
+      <p class="muted">Belum ada pekerjaan yang diposting.</p>
+    <% } %>
+    <% jobs.forEach(job => { %>
+      <div class="card">
+        <h3><a href="/jobs/<%= job.id %>"><%= job.title %></a></h3>
+        <p class="muted">Oleh <%= job.client_name %> &middot; <%= job.category || 'Umum' %></p>
+        <p>Rp <%= job.budget.toLocaleString('id-ID') %></p>
+      </div>
+    <% }) %>
+  </div>
+</body>
+</html>

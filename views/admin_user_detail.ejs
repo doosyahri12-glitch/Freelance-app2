@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= target.name %> - Detail Akun</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/admin-nav', { active: 'users' }) %>
+  <div class="container">
+    <div class="card">
+      <h2><%= target.name %></h2>
+      <p class="muted"><%= target.email %></p>
+      <% if (target.phone) { %><p class="muted"><i class="fa-solid fa-mobile-screen"></i> <%= target.phone %></p><% } %>
+      <span class="badge <%= target.role %>"><%= target.role %></span>
+      <span class="badge level-<%= target.level.toLowerCase().replace(/\s+/g, '-') %>"><i class="fa-solid fa-star"></i> <%= target.level %></span>
+      <p>Saldo saat ini: <strong>Rp <%= target.balance.toLocaleString('id-ID') %></strong></p>
+
+      <form method="POST" action="/admin/users/<%= target.id %>/level" style="margin-top:10px">
+        <label>Level User</label>
+        <select name="level">
+          <option value="VIP 0" <%= target.level === 'VIP 0' ? 'selected' : '' %>>VIP 0</option>
+          <option value="VIP 1" <%= target.level === 'VIP 1' ? 'selected' : '' %>>VIP 1</option>
+          <option value="VIP 2" <%= target.level === 'VIP 2' ? 'selected' : '' %>>VIP 2</option>
+        </select>
+        <button type="submit" class="secondary">Update Level</button>
+      </form>
+
+      <form method="POST" action="/admin/users/<%= target.id %>/password" style="margin-top:10px"
+            onsubmit="return confirm('Yakin ubah kata sandi <%= target.name %>? Kata sandi lama tidak akan berlaku lagi.');">
+        <label>Ubah Kata Sandi User</label>
+        <input type="password" name="new_password" minlength="6" required placeholder="Kata sandi baru (min. 6 karakter)">
+        <button type="submit" class="secondary">Ubah Kata Sandi</button>
+      </form>
+
+      <% if (target.bank_account_number) { %>
+        <div class="card" style="background:#f9fafb; margin-top:10px">
+          <p class="muted" style="margin:0 0 4px">Rekening Bank</p>
+          <p style="margin:0"><strong><i class="fa-solid fa-building-columns"></i> <%= target.bank_name %></strong></p>
+          <p style="margin:0"><%= target.bank_account_number %></p>
+          <p class="muted" style="margin:0">a.n. <%= target.bank_account_holder %></p>
+        </div>
+      <% } else { %>
+        <p class="muted">Belum mengisi rekening bank.</p>
+      <% } %>
+
+      <p class="muted">Bergabung sejak <%= target.created_at %></p>
+      <a href="/admin/tasks/new?user_id=<%= target.id %>" class="btn">+ Beri Tugas</a>
+
+      <% if (templates.length > 0) { %>
+        <form method="POST" action="/admin/users/<%= target.id %>/assign-paket" style="margin-top:10px">
+          <label>Assign Paket Tugas ke <%= target.name %></label>
+          <select name="template_id" required>
+            <option value="">-- Pilih Paket --</option>
+            <% templates.forEach(t => { %>
+              <option value="<%= t.id %>"><%= t.name %></option>
+            <% }) %>
+          </select>
+          <button type="submit" class="secondary"><i class="fa-solid fa-box-open"></i> Assign Paket</button>
+        </form>
+      <% } %>
+
+      <% if (target.id !== user.id) { %>
+        <form method="POST" action="/admin/users/<%= target.id %>/delete"
+              onsubmit="return confirm('Yakin hapus akun <%= target.name %>? Semua data terkait akan ikut terhapus dan tidak bisa dikembalikan.');">
+          <button type="submit" class="danger">Hapus User Ini</button>
+        </form>
+      <% } %>
+    </div>
+
+    <h3>Tugas yang Diberikan</h3>
+    <% if (tasks.length === 0) { %>
+      <div class="empty-state"><%- include('partials/illustration-empty') %><p>Belum ada tugas untuk user ini.</p></div>
+    <% } %>
+    <% tasks.forEach(t => { %>
+      <div class="card">
+        <h3><%= t.title %></h3>
+        <span class="badge kategori"><%= t.kategori %></span>
+        <% if (t.harga > 0) { %><p class="muted" style="margin:0">Harga Tugas: Rp <%= t.harga.toLocaleString('id-ID') %></p><% } %>
+        <p>Komisi: Rp <%= t.reward.toLocaleString('id-ID') %></p>
+        <span class="badge <%= t.status === 'locked' ? 'locked' : (t.status === 'pending' ? 'pending' : (t.status === 'approved' ? 'accepted' : (t.status === 'rejected' ? 'rejected' : 'pending'))) %>">
+          <%= t.status === 'locked' ? 'Terkunci' : (t.status === 'pending' ? 'Menunggu dikerjakan' : (t.status === 'completed' ? 'Menunggu review' : (t.status === 'approved' ? 'Disetujui' : 'Ditolak'))) %>
+        </span>
+      </div>
+    <% }) %>
+
+    <h3>Riwayat Saldo</h3>
+    <% if (transactions.length === 0) { %>
+      <div class="empty-state"><%- include('partials/illustration-empty') %><p>Belum ada riwayat transaksi saldo.</p></div>
+    <% } %>
+    <% transactions.forEach(t => { %>
+      <div class="card">
+        <p><strong><%= t.amount > 0 ? '+' : '' %>Rp <%= t.amount.toLocaleString('id-ID') %></strong></p>
+        <% if (t.note) { %><p class="muted"><%= t.note %></p><% } %>
+        <p class="muted"><%= t.created_at %></p>
+      </div>
+    <% }) %>
+
+    <h3>Riwayat Penarikan</h3>
+    <% if (withdrawals.length === 0) { %>
+      <div class="empty-state"><%- include('partials/illustration-empty') %><p>Belum ada permintaan penarikan.</p></div>
+    <% } %>
+    <% withdrawals.forEach(w => { %>
+      <div class="card">
+        <p><strong>Rp <%= w.amount.toLocaleString('id-ID') %></strong></p>
+        <% if (w.status === 'pending') { %>
+          <span class="badge pending">Diproses</span>
+        <% } else if (w.status === 'completed') { %>
+          <span class="badge accepted">Selesai</span>
+        <% } else { %>
+          <span class="badge rejected">Ditolak</span>
+        <% } %>
+        <p class="muted" style="margin:4px 0 0"><%= w.created_at %></p>
+      </div>
+    <% }) %>
+  </div>
+</body>
+</html>

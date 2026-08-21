@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= job.title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav>
+    <span class="brand">FreelanceKu</span>
+    <div>
+      <a href="/">Beranda</a>
+      <% if (user) { %><a href="/dashboard">Dashboard</a><% } else { %><a href="/login">Login</a><% } %>
+    </div>
+  </nav>
+  <div class="container">
+    <div class="card">
+      <h2><%= job.title %></h2>
+      <span class="badge <%= job.status %>"><%= job.status === 'open' ? 'Terbuka' : 'Ditutup' %></span>
+      <p class="muted">Diposting oleh <%= job.client_name %> &middot; <%= job.category || 'Umum' %></p>
+      <p><%= job.description %></p>
+      <p><strong>Budget: Rp <%= job.budget.toLocaleString('id-ID') %></strong></p>
+    </div>
+
+    <% if (user && user.role === 'freelancer') { %>
+      <div class="card">
+        <% if (myApplication) { %>
+          <p>Kamu sudah melamar. Status:
+            <span class="badge <%= myApplication.status %>">
+              <%= myApplication.status === 'pending' ? 'Menunggu' : (myApplication.status === 'accepted' ? 'Diterima' : 'Ditolak') %>
+            </span>
+          </p>
+        <% } else { %>
+          <h3>Lamar Pekerjaan Ini</h3>
+          <form method="POST" action="/jobs/<%= job.id %>/apply">
+            <label>Pesan untuk pemberi kerja (opsional)</label>
+            <textarea name="message" placeholder="Ceritakan kenapa kamu cocok untuk pekerjaan ini"></textarea>
+            <button type="submit">Kirim Lamaran</button>
+          </form>
+        <% } %>
+      </div>
+    <% } %>
+
+    <% if (!user) { %>
+      <div class="card">
+        <p class="muted">Login sebagai freelancer untuk melamar pekerjaan ini.</p>
+        <a href="/login" class="btn">Login</a>
+      </div>
+    <% } %>
+
+    <% if (applications) { %>
+      <h3>Pelamar (<%= applications.length %>)</h3>
+      <% if (applications.length === 0) { %>
+        <p class="muted">Belum ada yang melamar.</p>
+      <% } %>
+      <% applications.forEach(app => { %>
+        <div class="card">
+          <h3><%= app.freelancer_name %></h3>
+          <p class="muted"><%= app.freelancer_email %></p>
+          <% if (app.message) { %><p><%= app.message %></p><% } %>
+          <span class="badge <%= app.status %>">
+            <%= app.status === 'pending' ? 'Menunggu' : (app.status === 'accepted' ? 'Diterima' : 'Ditolak') %>
+          </span>
+          <% if (app.status === 'pending') { %>
+            <div>
+              <form method="POST" action="/applications/<%= app.id %>/accepted" style="display:inline">
+                <button type="submit">Terima</button>
+              </form>
+              <form method="POST" action="/applications/<%= app.id %>/rejected" style="display:inline">
+                <button type="submit" class="danger">Tolak</button>
+              </form>
+            </div>
+          <% } %>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "freelance-app",
+  "version": "1.0.0",
+  "description": "Website freelance job dengan login (client & freelancer)",
+  "main": "server.js",
+  "scripts": {
+    "prestart": "node scripts/kill-port.js 3000",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "bcryptjs": "^2.4.3",
+    "ejs": "^3.1.10"
+  }
+}

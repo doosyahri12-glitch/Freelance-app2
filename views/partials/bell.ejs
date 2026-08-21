@@ -1,0 +1,6 @@
+<a href="/notifikasi" class="nav-bell" title="Notifikasi">
+  <i class="fa-solid fa-bell"></i>
+  <% if (typeof notifCount !== 'undefined' && notifCount > 0) { %>
+    <span class="nav-bell-badge"><%= notifCount > 9 ? '9+' : notifCount %></span>
+  <% } %>
+</a>

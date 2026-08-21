@@ -1,0 +1,38 @@
+<div class="admin-topbar">
+  <button type="button" class="nav-toggle" onclick="toggleAdminSidebar()">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+  <span class="brand"><span class="logo-mark"><i class="fa-solid fa-briefcase"></i></span>FreelanceKu &middot; Admin</span>
+  <%- include('partials/theme-toggle') %>
+</div>
+
+<div class="admin-backdrop" id="adminBackdrop" onclick="closeAdminSidebar()"></div>
+
+<aside class="admin-sidebar" id="adminSidebar">
+  <div class="admin-sidebar-header">
+    <span class="brand"><span class="logo-mark"><i class="fa-solid fa-briefcase"></i></span>FreelanceKu</span>
+    <button type="button" class="sidebar-close" onclick="closeAdminSidebar()">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+  <nav class="admin-sidebar-menu">
+    <a href="/admin" class="<%= typeof active !== 'undefined' && active === 'dashboard' ? 'active' : '' %>"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+    <a href="/admin/users" class="<%= typeof active !== 'undefined' && active === 'users' ? 'active' : '' %>"><i class="fa-solid fa-users"></i> User</a>
+    <a href="/admin/tasks" class="<%= typeof active !== 'undefined' && active === 'tasks' ? 'active' : '' %>"><i class="fa-solid fa-clipboard-list"></i> Tugas</a>
+    <a href="/admin/paket-tugas" class="<%= typeof active !== 'undefined' && active === 'paket' ? 'active' : '' %>"><i class="fa-solid fa-box-open"></i> Paket Tugas</a>
+    <a href="/admin/penarikan" class="<%= typeof active !== 'undefined' && active === 'penarikan' ? 'active' : '' %>"><i class="fa-solid fa-money-bill-transfer"></i> Penarikan</a>
+    <a href="/admin/log" class="<%= typeof active !== 'undefined' && active === 'log' ? 'active' : '' %>"><i class="fa-solid fa-clock-rotate-left"></i> Log</a>
+    <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+  </nav>
+</aside>
+
+<script>
+  function toggleAdminSidebar() {
+    document.getElementById('adminSidebar').classList.toggle('open');
+    document.getElementById('adminBackdrop').classList.toggle('open');
+  }
+  function closeAdminSidebar() {
+    document.getElementById('adminSidebar').classList.remove('open');
+    document.getElementById('adminBackdrop').classList.remove('open');
+  }
+</script>

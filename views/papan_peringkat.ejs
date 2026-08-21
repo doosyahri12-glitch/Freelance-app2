@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Papan Peringkat</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <nav>
+    <span class="brand"><span class="logo-mark"><i class="fa-solid fa-briefcase"></i></span>FreelanceKu</span>
+    <div>
+      <%- include('partials/theme-toggle') %>
+      <%- include('partials/bell') %>
+      <a href="/akun">Kembali</a>
+    </div>
+  </nav>
+  <div class="container with-tabbar">
+    <h2><i class="fa-solid fa-ranking-star"></i> Papan Peringkat</h2>
+    <p class="muted">10 user dengan tugas selesai terbanyak (data asli).</p>
+
+    <div class="card">
+      <p style="margin:0">Tugas selesai kamu: <strong><%= myApproved %></strong></p>
+    </div>
+
+    <% if (top.length === 0) { %>
+      <div class="empty-state"><%- include('partials/illustration-empty') %><p>Belum ada tugas yang disetujui.</p></div>
+    <% } %>
+
+    <% top.forEach(t => { %>
+      <div class="card <%= t.isMe ? 'leaderboard-me' : '' %>" style="display:flex; align-items:center; gap:14px">
+        <div class="rank-badge rank-<%= t.rank <= 3 ? t.rank : 'other' %>">#<%= t.rank %></div>
+        <div style="flex:1">
+          <p style="margin:0; font-weight:600"><%= t.maskedName %><% if (t.isMe) { %> (Kamu)<% } %></p>
+          <p class="muted" style="margin:0"><%= t.jumlahTugas %> tugas selesai</p>
+        </div>
+        <% if (t.rank === 1) { %><i class="fa-solid fa-trophy" style="color:#fbbf24; font-size:20px"></i><% } %>
+      </div>
+    <% }) %>
+  </div>
+  <%- include('partials/tabbar', { active: 'akun' }) %>
+</body>
+</html>

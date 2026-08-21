@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola Tugas</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/admin-nav', { active: 'tasks' }) %>
+  <div class="container">
+    <h2>Semua Tugas (<%= tasks.length %>)</h2>
+    <a href="/admin/tasks/new" class="btn">+ Beri Tugas Baru</a>
+
+    <form method="GET" action="/admin/tasks" style="margin:16px 0">
+      <input type="text" name="search" value="<%= search %>" placeholder="Cari nama user...">
+      <select name="status">
+        <option value="" <%= statusFilter === '' ? 'selected' : '' %>>Semua Status</option>
+        <option value="locked" <%= statusFilter === 'locked' ? 'selected' : '' %>>Terkunci</option>
+        <option value="pending" <%= statusFilter === 'pending' ? 'selected' : '' %>>Menunggu Dikerjakan</option>
+        <option value="completed" <%= statusFilter === 'completed' ? 'selected' : '' %>>Menunggu Review</option>
+        <option value="approved" <%= statusFilter === 'approved' ? 'selected' : '' %>>Disetujui</option>
+        <option value="rejected" <%= statusFilter === 'rejected' ? 'selected' : '' %>>Ditolak</option>
+      </select>
+      <button type="submit">Filter</button>
+      <% if (search || statusFilter) { %>
+        <a href="/admin/tasks" class="btn secondary" style="margin-top:8px; display:inline-block">Reset</a>
+      <% } %>
+    </form>
+
+    <% if (tasks.length === 0) { %>
+      <div class="empty-state"><%- include('partials/illustration-empty') %><p>Tidak ada tugas yang cocok.</p></div>
+    <% } %>
+
+    <% tasks.forEach(t => { %>
+      <div class="card" style="margin-top:14px">
+        <h3><%= t.title %></h3>
+        <span class="badge kategori"><%= t.kategori %></span>
+        <p class="muted">Untuk <%= t.assignee_name %></p>
+        <p><%= t.description %></p>
+        <% if (t.harga > 0) { %><p class="muted" style="margin:0">Harga Tugas: Rp <%= t.harga.toLocaleString('id-ID') %></p><% } %>
+        <p>Komisi: <strong>Rp <%= t.reward.toLocaleString('id-ID') %></strong></p>
+
+        <span class="badge <%= t.status === 'locked' ? 'locked' : (t.status === 'pending' ? 'pending' : (t.status === 'approved' ? 'accepted' : (t.status === 'rejected' ? 'rejected' : 'pending'))) %>">
+          <%= t.status === 'locked' ? 'Terkunci (menunggu tugas sebelumnya)' : (t.status === 'pending' ? 'Menunggu dikerjakan' : (t.status === 'completed' ? 'Menunggu review' : (t.status === 'approved' ? 'Disetujui, saldo cair' : 'Ditolak'))) %>
+        </span>
+
+        <% if (t.status === 'completed') { %>
+          <div style="margin-top:10px">
+            <form method="POST" action="/admin/tasks/<%= t.id %>/approve" style="display:inline">
+              <button type="submit">Setujui & Cairkan Saldo</button>
+            </form>
+            <form method="POST" action="/admin/tasks/<%= t.id %>/reject" style="display:inline">
+              <button type="submit" class="danger">Tolak</button>
+            </form>
+          </div>
+        <% } %>
+
+        <form method="POST" action="/admin/tasks/<%= t.id %>/delete" style="margin-top:10px"
+              onsubmit="return confirm('Yakin hapus tugas &quot;<%= t.title %>&quot;? Tidak bisa dikembalikan.');">
+          <button type="submit" class="danger">Hapus Tugas</button>
+        </form>
+      </div>
+    <% }) %>
+  </div>
+</body>
+</html>

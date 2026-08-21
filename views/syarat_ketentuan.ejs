@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Syarat & Ketentuan</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <nav>
+    <span class="brand"><span class="logo-mark"><i class="fa-solid fa-briefcase"></i></span>FreelanceKu</span>
+    <div>
+      <%- include('partials/theme-toggle') %>
+      <% if (user) { %>
+        <a href="/akun">Kembali</a>
+      <% } else { %>
+        <a href="/login">Login</a>
+      <% } %>
+    </div>
+  </nav>
+  <div class="container <%= user ? 'with-tabbar' : '' %>">
+    <h2>Syarat & Ketentuan</h2>
+
+    <div class="card">
+      <ol style="padding-left:18px; margin:0">
+        <li style="margin-bottom:10px">Akun hanya boleh digunakan oleh pemilik yang mendaftar sendiri, dengan data nama dan nomor HP yang benar.</li>
+        <li style="margin-bottom:10px">Saldo diperoleh dari bonus pendaftaran dan tugas yang diberikan admin serta disetujui setelah dikerjakan.</li>
+        <li style="margin-bottom:10px">Penarikan saldo hanya bisa dilakukan ke rekening bank atas nama pemilik akun sendiri.</li>
+        <li style="margin-bottom:10px">Admin berhak meninjau, menyetujui, atau menolak tugas dan permintaan penarikan sesuai kebijakan.</li>
+        <li style="margin-bottom:10px">Admin berhak menonaktifkan akun yang terindikasi melanggar ketentuan atau disalahgunakan.</li>
+        <li style="margin-bottom:0">Kata sandi wajib dijaga kerahasiaannya. Kalau lupa, hubungi admin melalui menu Bantuan.</li>
+      </ol>
+    </div>
+  </div>
+  <% if (user) { %>
+    <%- include('partials/tabbar', { active: 'akun' }) %>
+  <% } %>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <nav>
+    <span class="brand"><span class="logo-mark"><i class="fa-solid fa-briefcase"></i></span>FreelanceKu</span>
+    <div>
+      <%- include('partials/theme-toggle') %>
+      <a href="/login">Login</a>
+    </div>
+  </nav>
+  <div class="container">
+    <div class="card">
+      <%- include('partials/illustration-work') %>
+      <h2>Daftar Akun Baru</h2>
+      <% if (error) { %><p class="error"><%= error %></p><% } %>
+      <form method="POST" action="/register">
+        <label>Nama</label>
+        <input type="text" name="name" required>
+
+        <label>Nomor HP</label>
+        <input type="tel" name="phone" required>
+
+        <label>Email (opsional)</label>
+        <input type="email" name="email">
+
+        <label>Kata Sandi</label>
+        <input type="password" name="password" required>
+
+        <label>Ulangi Kata Sandi</label>
+        <input type="password" name="password_confirm" required>
+
+        <label>Kode Referral (opsional)</label>
+        <input type="text" name="ref_code" value="<%= refCode %>" style="text-transform:uppercase" placeholder="Isi kalau diajak teman">
+
+        <button type="submit">Daftar</button>
+      </form>
+      <p class="muted" style="font-size:12px">Dengan mendaftar, kamu menyetujui <a href="/syarat-ketentuan">Syarat & Ketentuan</a> kami.</p>
+      <p class="muted">Sudah punya akun? <a href="/login">Login di sini</a></p>
+    </div>
+  </div>
+</body>
+</html>

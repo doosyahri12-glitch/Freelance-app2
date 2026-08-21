@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu Utama</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <nav>
+    <span class="brand"><span class="logo-mark"><i class="fa-solid fa-briefcase"></i></span>FreelanceKu</span>
+    <div>
+      <%- include('partials/theme-toggle') %>
+      <%- include('partials/bell') %>
+      <a href="/logout">Logout</a>
+    </div>
+  </nav>
+  <div class="container with-tabbar">
+    <h2>Halo, <%= user.name %> <i class="fa-solid fa-hand"></i></h2>
+
+    <div class="quote-card">
+      <i class="fa-solid fa-quote-left"></i>
+      <p><%= kutipanHarian %></p>
+    </div>
+
+    <div class="balance-card">
+      <%- include('partials/illustration-wallet') %>
+      <p class="label">Saldo Kamu</p>
+      <p class="amount">Rp <%= balance.toLocaleString('id-ID') %></p>
+    </div>
+
+    <div class="quick-menu">
+      <a href="/akun" class="quick-menu-item">
+        <span class="circle"><i class="fa-solid fa-money-bill-transfer"></i></span>
+        <span class="quick-label">Penarikan</span>
+      </a>
+      <a href="/akun/edit" class="quick-menu-item">
+        <span class="circle"><i class="fa-solid fa-user"></i></span>
+        <span class="quick-label">Profil</span>
+      </a>
+      <a href="/riwayat" class="quick-menu-item">
+        <span class="circle"><i class="fa-solid fa-sack-dollar"></i></span>
+        <span class="quick-label">Keuntungan</span>
+      </a>
+      <a href="/tugas" class="quick-menu-item">
+        <span class="circle"><i class="fa-solid fa-clipboard-list"></i></span>
+        <span class="quick-label">Tugas</span>
+      </a>
+    </div>
+
+    <% if (paketAktif) { %>
+      <div class="card paket-progress-card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start">
+          <h3 style="margin:0"><i class="fa-solid fa-box-open"></i> <%= paketAktif.nama_paket %></h3>
+          <% if (paketAktif.selesai >= paketAktif.total_tugas) { %>
+            <span class="badge accepted">Tuntas</span>
+          <% } else { %>
+            <span class="badge pending">Berjalan</span>
+          <% } %>
+        </div>
+        <div class="progress-track" style="margin-top:12px">
+          <div class="progress-fill" style="width:<%= Math.round((paketAktif.selesai / paketAktif.total_tugas) * 100) %>%"></div>
+        </div>
+        <p class="muted" style="margin:8px 0 0"><%= paketAktif.selesai %> dari <%= paketAktif.total_tugas %> tugas selesai</p>
+        <p style="margin:4px 0 0">Komisi terkumpul dari paket ini: <strong>Rp <%= paketAktif.komisi_terkumpul.toLocaleString('id-ID') %></strong></p>
+        <a href="/tugas" class="btn secondary" style="margin-top:10px">Lihat Tugas</a>
+      </div>
+    <% } %>
+
+    <% if (tasks.length === 0) { %>
+      <div class="card tips-card">
+        <h3><i class="fa-solid fa-lightbulb"></i> Langkah Awal</h3>
+        <ol style="margin:8px 0 0; padding-left:18px">
+          <li style="margin-bottom:8px">Lengkapi rekening bank kamu di menu <a href="/akun">Akun</a> supaya siap saat mau menarik saldo.</li>
+          <li style="margin-bottom:8px">Tunggu admin memberikan tugas pertama kamu.</li>
+          <li style="margin-bottom:0">Kerjakan tugas, tandai selesai, dan komisi otomatis cair setelah disetujui.</li>
+        </ol>
+      </div>
+    <% } %>
+
+    <% if (pendingTasks > 0) { %>
+      <div class="card" style="border-left:4px solid #f59e0b">
+        <p style="margin:0">Kamu punya <strong><%= pendingTasks %> tugas</strong> yang belum dikerjakan.</p>
+        <a href="/tugas" class="btn" style="margin-top:8px">Lihat Tugas</a>
+      </div>
+    <% } %>
+
+    <h3 class="section-title">Tugas Terbaru</h3>
+    <% if (tasks.length === 0) { %>
+      <div class="empty-state"><%- include('partials/illustration-empty') %><p>Belum ada tugas yang diberikan untuk kamu.</p></div>
+    <% } %>
+    <% tasks.forEach(t => { %>
+      <div class="card">
+        <h3><%= t.title %></h3>
+        <span class="badge kategori"><%= t.kategori %></span>
+        <% if (t.harga > 0) { %><p class="muted" style="margin:0">Harga Tugas: Rp <%= t.harga.toLocaleString('id-ID') %></p><% } %>
+        <p>Komisi: Rp <%= t.reward.toLocaleString('id-ID') %></p>
+        <% if (t.status === 'pending') { %>
+          <span class="badge pending">Belum Dikerjakan</span>
+        <% } else if (t.status === 'completed') { %>
+          <span class="badge pending">Menunggu Review Admin</span>
+        <% } else if (t.status === 'approved') { %>
+          <span class="badge accepted">Disetujui, Saldo Cair</span>
+        <% } else { %>
+          <span class="badge rejected">Ditolak</span>
+        <% } %>
+      </div>
+    <% }) %>
+    <% if (tasks.length > 0) { %>
+      <a href="/tugas" class="btn secondary">Lihat Semua Tugas</a>
+    <% } %>
+
+    <% if (recentWithdrawals.length > 0) { %>
+      <div class="card ticker-card">
+        <h3 style="margin:0 0 10px"><i class="fa-solid fa-money-bill-transfer"></i> Penarikan Berhasil</h3>
+        <div class="ticker-viewport">
+          <div class="ticker-track" style="animation-duration: <%= Math.max(10, recentWithdrawals.length * 3) %>s">
+            <% [...recentWithdrawals, ...recentWithdrawals].forEach(w => { %>
+              <div class="ticker-item">
+                <span><%= w.maskedName %></span>
+                <span class="ticker-amount">Rp <%= w.amount.toLocaleString('id-ID') %></span>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="app-footer">
+      <h4>Bantuan</h4>
+      <a href="/bantuan">Pusat Bantuan</a>
+      <a href="/syarat-ketentuan">Syarat & Ketentuan</a>
+      <p class="footer-bottom">&copy; FreelanceKu <%= new Date().getFullYear() %>. Semua hak dilindungi.</p>
+    </div>
+  </div>
+  <%- include('partials/tabbar', { active: 'dashboard' }) %>
+</body>
+</html>

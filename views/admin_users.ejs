@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola User</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/admin-nav', { active: 'users' }) %>
+  <div class="container">
+    <h2>Semua Akun (<%= users.length %>)</h2>
+    <a href="/admin/export/users" class="btn secondary"><i class="fa-solid fa-file-excel"></i> Export ke Excel</a>
+    <% if (message) { %><p class="error"><%= message %></p><% } %>
+
+    <form method="GET" action="/admin/users" style="margin-bottom:16px">
+      <input type="text" name="search" value="<%= search %>" placeholder="Cari nama user...">
+      <button type="submit">Cari</button>
+      <% if (search) { %>
+        <a href="/admin/users" class="btn" style="margin-top:8px; display:inline-block">Reset Pencarian</a>
+      <% } %>
+    </form>
+
+    <% if (search && users.length === 0) { %>
+      <div class="empty-state"><%- include('partials/illustration-empty') %><p>Tidak ada user dengan nama "<%= search %>".</p></div>
+    <% } %>
+
+    <% users.forEach(u => { %>
+      <div class="card">
+        <div class="user-row">
+          <div class="info">
+            <h3><a href="/admin/users/<%= u.id %>"><%= u.name %></a></h3>
+            <p class="muted"><%= u.email %></p>
+            <% if (u.phone) { %><p class="muted"><i class="fa-solid fa-mobile-screen"></i> <%= u.phone %></p><% } %>
+            <span class="badge <%= u.role %>"><%= u.role %></span>
+            <span class="badge level-<%= u.level.toLowerCase().replace(/\s+/g, '-') %>"><i class="fa-solid fa-star"></i> <%= u.level %></span>
+          </div>
+          <p class="balance-amount">Rp <%= u.balance.toLocaleString('id-ID') %></p>
+        </div>
+
+        <% if (u.bank_account_number) { %>
+          <p class="muted" style="margin-top:8px">
+            <i class="fa-solid fa-building-columns"></i> <%= u.bank_name %> &middot; <%= u.bank_account_number %> a.n. <%= u.bank_account_holder %>
+          </p>
+        <% } else { %>
+          <p class="muted" style="margin-top:8px">Belum mengisi rekening bank.</p>
+        <% } %>
+
+        <div style="display:flex; gap:10px; margin-top:14px">
+          <form method="POST" action="/admin/users/<%= u.id %>/balance/add" style="flex:1">
+            <label>Tambah Saldo</label>
+            <input type="number" name="amount" min="1" required placeholder="Jumlah">
+            <input type="text" name="note" placeholder="Catatan (opsional)">
+            <button type="submit">Tambah</button>
+          </form>
+          <form method="POST" action="/admin/users/<%= u.id %>/balance/subtract" style="flex:1">
+            <label>Kurangi Saldo</label>
+            <input type="number" name="amount" min="1" required placeholder="Jumlah">
+            <input type="text" name="note" placeholder="Catatan (opsional)">
+            <button type="submit" class="secondary">Kurangi</button>
+          </form>
+        </div>
+
+        <% if (u.id !== user.id) { %>
+          <form method="POST" action="/admin/users/<%= u.id %>/delete"
+                onsubmit="return confirm('Yakin hapus akun <%= u.name %>? Semua data terkait (tugas, riwayat saldo) akan ikut terhapus dan tidak bisa dikembalikan.');">
+            <button type="submit" class="danger">Hapus User</button>
+          </form>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+</body>
+</html>

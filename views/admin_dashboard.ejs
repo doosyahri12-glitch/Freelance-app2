@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/admin-nav', { active: 'dashboard' }) %>
+  <div class="container">
+    <h2>Halo, <%= user.name %> <span class="badge admin">Admin</span></h2>
+
+    <% if (stats.pendingReview > 0 || stats.pendingWithdrawal > 0) { %>
+      <div class="dash-alerts">
+        <% if (stats.pendingReview > 0) { %>
+          <a href="/admin/tasks" class="dash-alert-item">
+            <i class="fa-solid fa-clipboard-check"></i>
+            <span><strong><%= stats.pendingReview %></strong> tugas menunggu review</span>
+          </a>
+        <% } %>
+        <% if (stats.pendingWithdrawal > 0) { %>
+          <a href="/admin/penarikan" class="dash-alert-item">
+            <i class="fa-solid fa-money-bill-transfer"></i>
+            <span><strong><%= stats.pendingWithdrawal %></strong> penarikan menunggu diproses</span>
+          </a>
+        <% } %>
+      </div>
+    <% } %>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+        <p class="stat-label">Total User</p>
+        <p class="stat-value"><%= stats.totalUsers %></p>
+      </div>
+      <div class="stat-box accent-amber">
+        <div class="stat-icon accent-amber"><i class="fa-solid fa-wallet"></i></div>
+        <p class="stat-label">Total Saldo User</p>
+        <p class="stat-value">Rp <%= stats.totalBalance.toLocaleString('id-ID') %></p>
+      </div>
+      <div class="stat-box accent-purple">
+        <div class="stat-icon accent-purple"><i class="fa-solid fa-clipboard-check"></i></div>
+        <p class="stat-label">Tugas Disetujui</p>
+        <p class="stat-value"><%= stats.totalTasksApproved %></p>
+      </div>
+      <div class="stat-box accent-green">
+        <div class="stat-icon accent-green"><i class="fa-solid fa-money-bill-transfer"></i></div>
+        <p class="stat-label">Total Sudah Ditarik</p>
+        <p class="stat-value">Rp <%= stats.totalWithdrawn.toLocaleString('id-ID') %></p>
+      </div>
+    </div>
+
+    <div class="section-title">Aktivitas 7 Hari Terakhir</div>
+    <div class="card">
+      <div class="mini-chart-legend">
+        <span><span class="dot" style="background:var(--primary)"></span> Saldo Masuk</span>
+        <span><span class="dot" style="background:var(--success)"></span> Penarikan Selesai</span>
+      </div>
+      <div class="mini-chart">
+        <% const maxNilai = Math.max(1, ...chartMasuk, ...chartKeluar); %>
+        <% chartLabels.forEach((label, i) => { %>
+          <div class="mini-chart-col">
+            <div class="mini-chart-bars">
+              <div class="mini-chart-bar" style="height:<%= Math.round((chartMasuk[i] / maxNilai) * 100) %>%; background:var(--primary)" title="Masuk: Rp<%= chartMasuk[i].toLocaleString('id-ID') %>"></div>
+              <div class="mini-chart-bar" style="height:<%= Math.round((chartKeluar[i] / maxNilai) * 100) %>%; background:var(--success)" title="Ditarik: Rp<%= chartKeluar[i].toLocaleString('id-ID') %>"></div>
+            </div>
+            <p class="mini-chart-label"><%= label %></p>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="section-title">Aksi Cepat</div>
+    <div class="action-row">
+      <a href="/admin/tasks/new" class="btn"><i class="fa-solid fa-plus"></i> Beri Tugas</a>
+      <a href="/admin/paket-tugas/new" class="btn"><i class="fa-solid fa-box-open"></i> Buat Paket</a>
+      <a href="/admin/users" class="btn secondary"><i class="fa-solid fa-users"></i> Kelola User</a>
+      <a href="/admin/penarikan" class="btn secondary"><i class="fa-solid fa-money-bill-transfer"></i> Penarikan</a>
+    </div>
+
+    <% if (tugasMenunggu.length > 0) { %>
+      <div class="section-title">Tugas Menunggu Review</div>
+      <div class="card" style="padding:0">
+        <% tugasMenunggu.forEach(t => { %>
+          <div class="dash-list-row">
+            <div>
+              <p style="margin:0; font-weight:600"><%= t.title %></p>
+              <p class="muted" style="margin:0">oleh <%= t.nama_user %></p>
+            </div>
+            <span class="badge pending">Rp <%= t.reward.toLocaleString('id-ID') %></span>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <% if (penarikanMenunggu.length > 0) { %>
+      <div class="section-title">Penarikan Menunggu Diproses</div>
+      <div class="card" style="padding:0">
+        <% penarikanMenunggu.forEach(w => { %>
+          <div class="dash-list-row">
+            <p style="margin:0; font-weight:600"><%= w.nama_user %></p>
+            <span class="badge pending">Rp <%= w.amount.toLocaleString('id-ID') %></span>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</body>
+</html>

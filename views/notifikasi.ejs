@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifikasi</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.3/confetti.browser.min.js"></script>
+</head>
+<body>
+  <nav>
+    <span class="brand"><span class="logo-mark"><i class="fa-solid fa-briefcase"></i></span>FreelanceKu</span>
+    <div>
+      <%- include('partials/theme-toggle') %>
+      <a href="/akun">Kembali</a>
+    </div>
+  </nav>
+  <div class="container with-tabbar">
+    <h2>Notifikasi</h2>
+
+    <% if (notifications.length === 0) { %>
+      <div class="empty-state"><%- include('partials/illustration-empty') %><p>Belum ada notifikasi.</p></div>
+    <% } %>
+
+    <% notifications.forEach(n => { %>
+      <div class="card">
+        <% if (n.type === 'task') { %>
+          <p style="margin:0 0 4px"><i class="fa-solid fa-clipboard-list"></i> <strong><%= n.label %></strong></p>
+          <% if (n.status === 'pending') { %>
+            <span class="badge pending">Tugas baru diberikan</span>
+          <% } else if (n.status === 'completed') { %>
+            <span class="badge pending">Menunggu review admin</span>
+          <% } else if (n.status === 'approved') { %>
+            <span class="badge accepted">Disetujui &middot; Rp <%= n.amount.toLocaleString('id-ID') %> cair</span>
+          <% } else { %>
+            <span class="badge rejected">Ditolak</span>
+          <% } %>
+        <% } else { %>
+          <p style="margin:0 0 4px"><i class="fa-solid fa-money-bill-transfer"></i> <strong>Penarikan Rp <%= n.amount.toLocaleString('id-ID') %></strong></p>
+          <% if (n.status === 'pending') { %>
+            <span class="badge pending">Diproses</span>
+          <% } else if (n.status === 'completed') { %>
+            <span class="badge accepted">Selesai ditransfer</span>
+          <% } else { %>
+            <span class="badge rejected">Ditolak</span>
+          <% } %>
+          <% if (n.catatan) { %>
+            <div class="admin-note-box">
+              <p class="muted" style="margin:0 0 2px; font-weight:600">Keterangan Admin:</p>
+              <p style="margin:0"><%= n.catatan %></p>
+            </div>
+          <% } %>
+        <% } %>
+        <p class="muted" style="margin:6px 0 0"><%= n.waktu %></p>
+      </div>
+    <% }) %>
+  </div>
+  <%- include('partials/tabbar', { active: 'akun' }) %>
+  <% if (adaKomisiBaru) { %>
+    <script>
+      window.addEventListener('load', () => {
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 120, spread: 80, origin: { y: 0.4 } });
+        }
+        // Getar kecil (kalau didukung HP-nya)
+        if (navigator.vibrate) {
+          navigator.vibrate([80, 40, 80]);
+        }
+        // Suara "ting" pendek, dibuat langsung tanpa file audio (tidak perlu internet)
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.4);
+        } catch (e) {}
+      });
+    </script>
+  <% } %>
+</body>
+</html>

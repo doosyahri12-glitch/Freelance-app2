@@ -1,0 +1,6 @@
+node_modules/
+.env
+*.db
+*.db-journal
+ngrok
+ngrok-v3-stable-linux-arm64.tgz

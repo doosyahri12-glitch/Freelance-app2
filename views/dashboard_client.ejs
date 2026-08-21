@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Client</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav>
+    <span class="brand">FreelanceKu</span>
+    <div>
+      <a href="/">Beranda</a>
+      <a href="/logout">Logout</a>
+    </div>
+  </nav>
+  <div class="container">
+    <h2>Halo, <%= user.name %> (Client)</h2>
+
+    <div class="balance-card">
+      <p class="label">Saldo Kamu</p>
+      <p class="amount">Rp <%= balance.toLocaleString('id-ID') %></p>
+    </div>
+
+    <a href="/jobs/new" class="btn">+ Posting Pekerjaan Baru</a>
+
+    <% if (tasks.length > 0) { %>
+      <h3 style="margin-top:24px">Tugas dari Admin</h3>
+      <% tasks.forEach(t => { %>
+        <div class="card">
+          <h3><%= t.title %></h3>
+          <p><%= t.description %></p>
+          <p>Imbalan: <strong>Rp <%= t.reward.toLocaleString('id-ID') %></strong></p>
+          <% if (t.status === 'pending') { %>
+            <span class="badge pending">Belum Dikerjakan</span>
+            <form method="POST" action="/tasks/<%= t.id %>/complete">
+              <button type="submit">Tandai Selesai</button>
+            </form>
+          <% } else if (t.status === 'completed') { %>
+            <span class="badge pending">Menunggu Review Admin</span>
+          <% } else if (t.status === 'approved') { %>
+            <span class="badge accepted">Disetujui, Saldo Cair</span>
+          <% } else { %>
+            <span class="badge rejected">Ditolak</span>
+          <% } %>
+        </div>
+      <% }) %>
+    <% } %>
+
+    <h3 style="margin-top:24px">Pekerjaan yang Kamu Posting</h3>
+    <% if (jobs.length === 0) { %>
+      <p class="muted">Kamu belum posting pekerjaan.</p>
+    <% } %>
+    <% jobs.forEach(job => { %>
+      <div class="card">
+        <h3><a href="/jobs/<%= job.id %>"><%= job.title %></a></h3>
+        <span class="badge <%= job.status %>"><%= job.status === 'open' ? 'Terbuka' : 'Ditutup' %></span>
+        <p>Rp <%= job.budget.toLocaleString('id-ID') %></p>
+      </div>
+    <% }) %>
+  </div>
+</body>
+</html>
